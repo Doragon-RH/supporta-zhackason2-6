@@ -6,7 +6,7 @@ import ChartCanvas from "/src/components/ChartCanvas.vue";
 <template>
   <v-app>
     <Nav />
-    <div style="height: 100px" />
+    <div style="height: 120px" />
     <ChartCanvas />
   </v-app>
 </template>

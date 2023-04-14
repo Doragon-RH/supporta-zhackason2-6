@@ -4,6 +4,9 @@ import Chart from "chart.js/auto";
 import type { ChartOptions, ChartData, ChartDataset } from "chart.js";
 import "chartjs-adapter-date-fns";
 
+const tab = ref("貸し手");
+const tabs = ["貸し手", "借り手"];
+
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 
 const img1 = new Image(20, 20);
@@ -134,5 +137,15 @@ onMounted(() => {
 });
 </script>
 <template>
-  <canvas ref="chartCanvas"></canvas>
+  <v-tabs v-model="tab" color="pink-accent-4" align-tabs="center">
+    <v-tab v-for="t in tabs" :key="t" :value="t">
+      <p class="font-weight-bold text-h6">{{ t }}</p>
+    </v-tab>
+  </v-tabs>
+  <div style="height: 15px" />
+  <v-row class="justify-center">
+    <v-card justify="center" height="550" style="width: 90%">
+      <canvas ref="chartCanvas"></canvas>
+    </v-card>
+  </v-row>
 </template>
