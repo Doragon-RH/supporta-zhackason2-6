@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import Nav from "/src/components/Nav.vue";
 import ChartCanvas from "/src/components/ChartCanvas.vue";
 </script>
 
 <template>
-  <ChartCanvas />
+  <v-app>
+    <Nav />
+    <div style="height: 100px" />
+    <ChartCanvas />
+  </v-app>
 </template>
 
 <style scoped></style>
