@@ -1,13 +1,12 @@
-<script setup lang="ts">
-import Nav from "/src/components/Nav.vue";
-import ChartCanvas from "/src/components/ChartCanvas.vue";
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <v-app>
-    <Nav />
-    <div style="height: 120px" />
-    <ChartCanvas />
+  <v-app class="bg-grey-lighten-4">
+    <v-row align-content="center">
+      <v-col align="center">
+        <router-view />
+      </v-col>
+    </v-row>
   </v-app>
 </template>
 

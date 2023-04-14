@@ -138,14 +138,28 @@ onMounted(() => {
 </script>
 <template>
   <v-tabs v-model="tab" color="pink-accent-4" align-tabs="center">
-    <v-tab v-for="t in tabs" :key="t" :value="t">
+    <v-tab
+      v-for="t in tabs"
+      :key="t"
+      :value="t"
+      style="padding-left: 50px; padding-right: 50px"
+    >
       <p class="font-weight-bold text-h6">{{ t }}</p>
     </v-tab>
   </v-tabs>
   <div style="height: 15px" />
-  <v-row class="justify-center">
-    <v-card justify="center" height="550" style="width: 90%">
-      <canvas ref="chartCanvas"></canvas>
-    </v-card>
-  </v-row>
+  <div class="total d-flex flex-row justify-end">
+    <div class="font-weight-bold text-h5">合計金額 : ￥46,000</div>
+  </div>
+  <div style="height: 15px" />
+  <div style="width: 90%">
+    <canvas ref="chartCanvas"></canvas>
+  </div>
 </template>
+<style>
+.total {
+  height: 70px;
+  padding-right: 8%;
+  text-decoration: underline;
+}
+</style>
