@@ -15,10 +15,10 @@
     <v-btn class="btns" size="48">
       <v-icon size="48">mdi-plus-circle</v-icon>
     </v-btn>
-    <v-btn class="btns" size="48">
+    <v-btn class="btns" size="48" to="/friend">
       <v-icon size="48">mdi-account-multiple</v-icon>
     </v-btn>
-    <v-btn class="btns" size="48">
+    <v-btn class="btns" size="48" to="/profile/register">
       <v-icon size="48">mdi-account-edit</v-icon>
     </v-btn>
     <v-btn class="btns" size="48" to="/signup">
