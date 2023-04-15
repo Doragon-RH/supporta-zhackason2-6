@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { dialogStore } from "./stores";
 
 import App from "./App.vue";
 import router from "./router";
@@ -22,6 +23,7 @@ axios.defaults.baseURL = "http://localhost:8888/";
 const app = createApp(App);
 
 app.use(createPinia());
+app.provide("dialog", dialogStore);
 app.use(router);
 app.use(vuetify);
 

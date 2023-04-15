@@ -53,75 +53,51 @@ const registerAccount = async () => {
 };
 </script>
 <template>
-  <v-card max-width="600px" min-width="350px" style="width: 40%">
-    <v-card-title class="text-pink-darken-4 font-weight-bold pa-5">
-      PROFILE
-    </v-card-title>
-    <p class="text-subtitle-1">Email : {{ email }}</p>
-    <div style="text-align: center">
-      <v-avatar size="128">
-        <v-img v-if="uploadImg" :src="uploadImg" />
-        <v-icon v-else size="128" icon="mdi-account-circle" />
-      </v-avatar>
-      <div style="height: 20px" />
-      <input
-        type="file"
-        @change="handleImageUpload"
-        style="text-align: center"
-      />
-    </div>
-    <div style="height: 20px" />
-    <v-divider />
-    <v-card-text class="pa-5">
-      <v-form v-model="valid">
-        <v-text-field
-          :rules="emailRules"
-          v-model="user_id"
-          prepend-icon="mdi-account"
-          label="ユーザID"
-          variant="outlined"
-          required
-        />
-        <v-text-field
-          v-model="password"
-          :rules="passwordRules"
-          prepend-icon="mdi-card-account-details"
-          label="ユーザ名"
-          variant="outlined"
-          required
-        />
-        <p class="d-flex flex-row text-subtitle-1 text-grey-darken-1">
-          変形パターン
-        </p>
-        <div style="border: 2px solid #ccc; padding: 10px">
-          <div
-            :class="{ notSelected: selectImgType !== type }"
-            style="display: inline-block"
-            v-for="type in ['A', 'B', 'C']"
-            :key="type"
-            @click="selectImage(type)"
-          >
-            <v-avatar style="margin-right: 8px; margin-left: 8px" size="96">
-              <v-img
-                :src="`/src/assets/form_sample/form_sample_${type}.png`"
-              ></v-img>
-            </v-avatar>
-          </div>
+  <v-row align-content="center">
+    <v-col align="center">
+      <v-card max-width="600px" min-width="450px" style="width: 100%">
+        <v-card-title class="text-pink-darken-4 font-weight-bold pa-5">
+          PROFILE
+        </v-card-title>
+        <p class="text-subtitle-1">Email : {{ email }}</p>
+        <div style="text-align: center">
+          <v-avatar size="128">
+            <v-img v-if="uploadImg" :src="uploadImg" />
+            <v-icon v-else size="128" icon="mdi-account-circle" />
+          </v-avatar>
+          <div style="height: 20px" />
+          <input type="file" @change="handleImageUpload" style="text-align: center" />
         </div>
-        <v-card-actions class="justify-center pa-3">
-          <v-btn
-            @click="registerAccount"
-            :disabled="!valid"
-            color="pink accent-2"
-            class="font-weight-bold text-h6"
-            flat
-          >
-            登録
-          </v-btn>
-        </v-card-actions>
-      </v-form>
-    </v-card-text>
-  </v-card>
+        <div style="height: 20px" />
+        <v-divider />
+        <v-card-text class="pa-5">
+          <v-form v-model="valid">
+            <v-text-field :rules="emailRules" v-model="user_id" prepend-icon="mdi-account" label="ユーザID"
+              variant="outlined" required />
+            <v-text-field v-model="password" :rules="passwordRules" prepend-icon="mdi-card-account-details" label="ユーザ名"
+              variant="outlined" required />
+            <p class="d-flex flex-row text-subtitle-1 text-grey-darken-1">
+              変形パターン
+            </p>
+            <div style="border: 2px solid #ccc; padding: 10px">
+              <div :class="{ notSelected: selectImgType !== type }" style="display: inline-block"
+                v-for="type in ['A', 'B', 'C']" :key="type" @click="selectImage(type)">
+                <v-avatar style="margin-right: 8px; margin-left: 8px" size="96">
+                  <v-img :src="`/src/assets/form_sample/form_sample_${type}.png`"></v-img>
+                </v-avatar>
+              </div>
+            </div>
+            <v-card-actions class="justify-center pa-3">
+              <v-btn @click="registerAccount" :disabled="!valid" color="pink accent-2" class="font-weight-bold text-h6"
+                flat>
+                登録
+              </v-btn>
+            </v-card-actions>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 <style>
 .notSelected {
