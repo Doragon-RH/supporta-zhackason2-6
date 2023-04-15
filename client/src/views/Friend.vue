@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ProfileCard from "/src/components/ProfileCard.vue";
+import Friend from "/src/components/Friend.vue";
 </script>
 <template>
-  <ProfileCard />
+  <Friend />
 </template>
