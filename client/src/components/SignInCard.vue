@@ -7,7 +7,7 @@ const router = useRouter();
 
 const valid = ref(false);
 
-const user_id = ref("");
+const email = ref("");
 const emailRules = [
   (v: string) => !!v || "Emailを入力してください",
   (v: string) => /\S+@\S+.\S+/.test(v) || "有効なEmailを入力してください",
@@ -21,15 +21,15 @@ const passwordRules = [
   (v: string) => 7 <= v.length || "8文字以上で入力してください",
 ];
 
-const registerAccount = async () => {
+const signIn = async () => {
   await axios
-    .post("/user/signup", {
-      name: user_id.value,
+    .post("/auth/signin", {
+      email: email.value,
       password: password.value,
     })
     .then((res) => {
-      sessionStorage.setItem("user_id", res.data.id);
-      sessionStorage.setItem("user_name", res.data.name);
+      sessionStorage.setItem("user_id", res.data.user_id);
+      sessionStorage.setItem("email", res.data.email);
       router.push("/");
     })
     .catch((err) => {
@@ -47,7 +47,7 @@ const registerAccount = async () => {
       <v-form v-model="valid">
         <v-text-field
           :rules="emailRules"
-          v-model="user_id"
+          v-model="email"
           prepend-icon="mdi-email"
           label="メールアドレス"
           variant="outlined"
@@ -67,7 +67,7 @@ const registerAccount = async () => {
         />
         <v-card-actions class="justify-center pa-3">
           <v-btn
-            @click="registerAccount"
+            @click="signIn"
             :disabled="!valid"
             color="pink accent-2"
             class="font-weight-bold text-h6"

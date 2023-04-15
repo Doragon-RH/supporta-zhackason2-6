@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { dialogStore } from "@/stores";
 import { computed } from "vue";
+import { useRouter } from "vue-router";
 
 const store = dialogStore();
 const showNoticeDialog = computed({
@@ -19,15 +20,19 @@ const showProfileDialog = computed({
   get: () => store.profile,
   set: (newValue) => store.setProfile(newValue),
 });
+
+const router = useRouter();
+
+const signOut = () => {
+  sessionStorage.removeItem("user_id");
+  sessionStorage.removeItem("email");
+  router.push("/signin");
+};
 </script>
 <template>
   <v-app-bar height="100" color="pink accent-3" flat>
     <router-link to="/">
-      <img
-        style="padding-left: 20px"
-        height="80"
-        src="/src/assets/logo_title.png"
-      />
+      <img style="padding-left: 20px" height="80" src="/src/assets/logo_title.png" />
     </router-link>
     <v-spacer></v-spacer>
     <v-spacer></v-spacer>
@@ -43,7 +48,7 @@ const showProfileDialog = computed({
     <v-btn class="btns" size="48" @click="showProfileDialog = true">
       <v-icon size="48">mdi-account-edit</v-icon>
     </v-btn>
-    <v-btn class="btns" size="48" to="/signup">
+    <v-btn class="btns" size="48" @click="signOut">
       <v-icon size="48">mdi-logout</v-icon>
     </v-btn>
   </v-app-bar>

@@ -7,7 +7,7 @@ const router = useRouter();
 
 const valid = ref(false);
 
-const user_id = ref("");
+const email = ref("");
 const emailRules = [
   (v: string) => !!v || "Emailを入力してください",
   (v: string) => /\S+@\S+.\S+/.test(v) || "有効なEmailを入力してください",
@@ -23,13 +23,13 @@ const passwordRules = [
 
 const registerAccount = async () => {
   await axios
-    .post("/user/signup", {
-      name: user_id.value,
+    .post("/auth/signup", {
+      email: email.value,
       password: password.value,
     })
     .then((res) => {
-      sessionStorage.setItem("user_id", res.data.id);
-      sessionStorage.setItem("user_name", res.data.name);
+      sessionStorage.setItem("user_id", res.data.user_id);
+      sessionStorage.setItem("email", res.data.email);
       router.push("/");
     })
     .catch((err) => {
@@ -47,7 +47,7 @@ const registerAccount = async () => {
       <v-form v-model="valid">
         <v-text-field
           :rules="emailRules"
-          v-model="user_id"
+          v-model="email"
           prepend-icon="mdi-email"
           label="メールアドレス"
           variant="outlined"
