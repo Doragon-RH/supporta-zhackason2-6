@@ -45,13 +45,35 @@ const registerAccount = async () => {
     <v-divider />
     <v-card-text class="pa-5">
       <v-form v-model="valid">
-        <v-text-field :rules="emailRules" v-model="user_id" prepend-icon="mdi-email" label="メールアドレス" variant="outlined"
-          required style="padding-right: 40px" />
-        <v-text-field @click:append="showPassword = !showPassword" v-bind:type="showPassword ? 'text' : 'password'"
-          v-bind:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" v-model="password" :rules="passwordRules"
-          prepend-icon="mdi-lock" label="パスワード" variant="outlined" required />
+        <v-text-field
+          :rules="emailRules"
+          v-model="user_id"
+          prepend-icon="mdi-email"
+          label="メールアドレス"
+          variant="outlined"
+          required
+          style="padding-right: 40px"
+        />
+        <v-text-field
+          @click:append="showPassword = !showPassword"
+          v-bind:type="showPassword ? 'text' : 'password'"
+          v-bind:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+          v-model="password"
+          :rules="passwordRules"
+          prepend-icon="mdi-lock"
+          label="パスワード"
+          variant="outlined"
+          required
+        />
         <v-card-actions class="justify-center pa-3">
-          <v-btn @click="registerAccount" :disabled="!valid" color="pink accent-2" class="font-weight-bold text-h6" flat>
+          <v-btn
+            to="/profile/register"
+            @click="registerAccount"
+            :disabled="!valid"
+            color="pink accent-2"
+            class="font-weight-bold text-h6"
+            flat
+          >
             登録
           </v-btn>
         </v-card-actions>
