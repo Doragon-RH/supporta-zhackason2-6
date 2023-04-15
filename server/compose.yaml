@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    volumes:
+      - ./server:/server
+    ports:
+      - 8888:8888
