@@ -5,6 +5,8 @@ import axios from "axios";
 
 const router = useRouter();
 
+const email = "test@example.com";
+
 const uploadImg = ref();
 const handleImageUpload = (event: any) => {
   const file = event.target.files[0];
@@ -55,6 +57,7 @@ const registerAccount = async () => {
     <v-card-title class="text-pink-darken-4 font-weight-bold pa-5">
       PROFILE
     </v-card-title>
+    <p class="text-subtitle-1">Email : {{ email }}</p>
     <div style="text-align: center">
       <v-avatar size="128">
         <v-img v-if="uploadImg" :src="uploadImg" />
