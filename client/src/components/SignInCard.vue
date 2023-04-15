@@ -37,10 +37,20 @@ const signIn = async () => {
       sessionStorage.setItem("email", res.data.email);
       const { data, error } = await supabase
         .from("User")
-        .select("user_name")
+        .select()
         .eq("user_id", res.data.user_id);
       if (!error) {
         sessionStorage.setItem("user_name", data[0].user_name);
+        sessionStorage.setItem("face_pattern", data[0].face_pattern);
+        sessionStorage.setItem("image_id", data[0].image_id);
+      }
+      const img_id = sessionStorage.getItem("image_id");
+      if (img_id) {
+        const data = await supabase.from("Image").select().eq("id", img_id);
+        if (!data.error) {
+          const path = data.data[0].origin_path;
+          sessionStorage.setItem("image_url", path);
+        }
       }
       router.push("/");
     })
@@ -57,34 +67,13 @@ const signIn = async () => {
     <v-divider />
     <v-card-text class="pa-5">
       <v-form v-model="valid">
-        <v-text-field
-          :rules="emailRules"
-          v-model="email"
-          prepend-icon="mdi-email"
-          label="メールアドレス"
-          variant="outlined"
-          required
-          style="padding-right: 40px"
-        />
-        <v-text-field
-          @click:append="showPassword = !showPassword"
-          v-bind:type="showPassword ? 'text' : 'password'"
-          v-bind:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-          v-model="password"
-          :rules="passwordRules"
-          prepend-icon="mdi-lock"
-          label="パスワード"
-          variant="outlined"
-          required
-        />
+        <v-text-field :rules="emailRules" v-model="email" prepend-icon="mdi-email" label="メールアドレス" variant="outlined"
+          required style="padding-right: 40px" />
+        <v-text-field @click:append="showPassword = !showPassword" v-bind:type="showPassword ? 'text' : 'password'"
+          v-bind:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" v-model="password" :rules="passwordRules"
+          prepend-icon="mdi-lock" label="パスワード" variant="outlined" required />
         <v-card-actions class="justify-center pa-3">
-          <v-btn
-            @click="signIn"
-            :disabled="!valid"
-            color="pink accent-2"
-            class="font-weight-bold text-h6"
-            flat
-          >
+          <v-btn @click="signIn" :disabled="!valid" color="pink accent-2" class="font-weight-bold text-h6" flat>
             サインイン
           </v-btn>
         </v-card-actions>
@@ -92,8 +81,7 @@ const signIn = async () => {
     </v-card-text>
     <v-divider />
     <p class="text-center" style="padding-top: 20px; padding-bottom: 20px">
-      アカウントを<br />お持ちでない方は<router-link to="/signup"
-        >こちら
+      アカウントを<br />お持ちでない方は<router-link to="/signup">こちら
       </router-link>
       <br />
     </p>
