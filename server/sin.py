@@ -27,5 +27,4 @@ def processing_sin(path, name):
                     continue
                 img_sin[y, x] = img[conv_y, conv_x]
 
-        print(i, amp)
         cv2.imwrite(f"./tmp/B_{name}_{i+1}.png", img_sin)

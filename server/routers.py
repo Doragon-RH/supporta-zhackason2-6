@@ -57,3 +57,32 @@ def transform_image(path: str):
     fisheye.processing_fish(trim_path, p)
     sin.processing_sin(trim_path, p)
     mosaic.processing_mosaic(trim_path, p)
+
+    data = {}
+    files = []
+
+    path = f"./tmp/trim_{p}.png"
+    supabase.storage().from_("Images").remove(
+        f"Trim/{p}.png")
+    res = supabase.storage().from_("Images").upload(
+        f"Trim/{p}.png", os.path.abspath(path))
+    data["trim_path"] = f"Trim/{p}.png"
+    files.append(path)
+
+    for c in ["A", "B", "C"]:
+        for i in range(1, 6):
+            path = f"./tmp/{c}_{p}_{i}.png"
+            files.append(path)
+            with open(path, "rb+") as f:
+                print(path)
+                supabase.storage().from_("Images").remove(
+                    f"{c}/Lev{i}/{p}.png")
+                res = supabase.storage().from_("Images").upload(
+                    f"{c}/Lev{i}/{p}.png", os.path.abspath(path))
+            data[f"pattern{c}_lev{i}_path"] = f"{c}/Lev{i}/{p}.png"
+
+    res = supabase.table("Image").update(data).eq("user_id", p).execute()
+
+    for f in files:
+        os.remove(f)
+    os.remove(f"./tmp/{p}.png")
