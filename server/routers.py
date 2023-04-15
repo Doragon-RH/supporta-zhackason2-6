@@ -40,4 +40,4 @@ def signin(user: schemas.UserCreate):
         "email": user.email,
         "password": user.password
     })
-    return {"id": res.user.id, "email": res.user.email}
+    return {"user_id": res.user.id, "email": res.user.email}
