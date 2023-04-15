@@ -2,6 +2,11 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
+
+const url = import.meta.env.VITE_SUPABASE_URL;
+const key = import.meta.env.VITE_SUPABASE_KEY;
+const supabase = createClient(url, key);
 
 const router = useRouter();
 
@@ -27,9 +32,16 @@ const signIn = async () => {
       email: email.value,
       password: password.value,
     })
-    .then((res) => {
+    .then(async (res) => {
       sessionStorage.setItem("user_id", res.data.user_id);
       sessionStorage.setItem("email", res.data.email);
+      const { data, error } = await supabase
+        .from("User")
+        .select("user_name")
+        .eq("user_id", res.data.user_id);
+      if (!error) {
+        sessionStorage.setItem("user_name", data[0].user_name);
+      }
       router.push("/");
     })
     .catch((err) => {
