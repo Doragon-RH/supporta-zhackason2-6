@@ -82,11 +82,21 @@ const getFollow = async () => {
     } else if (d.established && !d.rejected) {
       const user = await supabase
         .from("User")
-        .select("user_name")
+        .select("user_name, face_pattern, image_id")
         .eq("email", d.follower_email);
+      const rand = Math.floor(Math.random() * (5 + 1 - 1)) + 1;
+      const image = await supabase
+        .from("Image")
+        .select(`pattern${user.data[0].face_pattern}_lev${rand}_path`)
+        .eq("id", user.data[0].image_id);
+      const img_path =
+        image.data[0][`pattern${user.data[0].face_pattern}_lev${rand}_path`];
+      const url = supabase.storage.from("Images").getPublicUrl(img_path)
+        .data.publicUrl;
       const name = user.data[0].user_name;
       friends.value.push({
         id: d.id,
+        img_path: url,
         user_name: name,
         email: d.follower_email,
       });
@@ -217,7 +227,7 @@ onMounted(() => {
           <div v-if="tab == '承認済み'" style="height: 500px; overflow-y: auto">
             <div v-for="(user, index) in friends" class="d-flex flex-row">
               <v-avatar size="64">
-                <v-icon size="64" icon="mdi-account-circle" />
+                <v-img :src="user.img_path"></v-img>
               </v-avatar>
               <p class="text-h6" style="padding-top: 15px; padding-left: 5px">
                 {{ user.user_name }} ({{ user.email }})

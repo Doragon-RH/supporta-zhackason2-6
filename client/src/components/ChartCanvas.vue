@@ -169,6 +169,11 @@ const renderChart = () => {
           y: {
             type: "linear",
             position: "center",
+            ticks: {
+              callback: (value) => {
+                return "￥" + value.toString();
+              },
+            },
           },
         },
       };
@@ -184,12 +189,7 @@ const renderChart = () => {
 </script>
 <template>
   <v-tabs v-model="tab" color="pink-accent-4" align-tabs="center">
-    <v-tab
-      v-for="t in tabs"
-      :key="t"
-      :value="t"
-      style="padding-left: 50px; padding-right: 50px"
-    >
+    <v-tab v-for="t in tabs" :key="t" :value="t" style="padding-left: 50px; padding-right: 50px">
       <p class="font-weight-bold text-h6">{{ t }}</p>
     </v-tab>
   </v-tabs>
