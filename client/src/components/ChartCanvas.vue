@@ -3,22 +3,78 @@ import { onMounted, ref } from "vue";
 import Chart from "chart.js/auto";
 import type { ChartOptions, ChartData, ChartDataset } from "chart.js";
 import "chartjs-adapter-date-fns";
+import { createClient } from "@supabase/supabase-js";
 
-const tab = ref("貸し手");
-const tabs = ["貸し手", "借り手"];
+const url = import.meta.env.VITE_SUPABASE_URL;
+const key = import.meta.env.VITE_SUPABASE_KEY;
+const supabase = createClient(url, key);
+
+const transactions = ref([]);
+
+const imgs = ref([]);
+const coords = ref([]);
+const sum_amount = ref(0);
+const getLender = async () => {
+  const data = await supabase
+    .from("Transaction")
+    .select()
+    .eq("lender_id", sessionStorage.getItem("email"));
+
+  transactions.value = data.data;
+  for (const trans of transactions.value) {
+    const userData = await supabase
+      .from("User")
+      .select("image_id, face_pattern")
+      .eq("email", trans.borrower_id);
+
+    const img_pattern = ref("");
+    if (trans.amount < 5000) {
+      img_pattern.value = `pattern${userData.data[0].face_pattern}_lev1_path`;
+    } else if (trans.amount < 12500) {
+      img_pattern.value = `pattern${userData.data[0].face_pattern}_lev2_path`;
+    } else if (trans.amount < 25000) {
+      img_pattern.value = `pattern${userData.data[0].face_pattern}_lev3_path`;
+    } else if (trans.amount < 50000) {
+      img_pattern.value = `pattern${userData.data[0].face_pattern}_lev4_path`;
+    } else {
+      img_pattern.value = `pattern${userData.data[0].face_pattern}_lev5_path`;
+    }
+    sum_amount.value = sum_amount.value + trans.amount;
+    const pathData = await supabase
+      .from("Image")
+      .select(img_pattern.value)
+      .eq("id", userData.data[0].image_id);
+    const path = pathData.data[0][img_pattern.value];
+    const url = supabase.storage.from("Images").getPublicUrl(path)
+      .data.publicUrl;
+    console.log(path, url);
+    let size = trans.amount / 250;
+    if (size < 20) {
+      size = 20;
+    } else if (size > 300) {
+      size = 300;
+    }
+    const img = new Image(size, size);
+    img.src = url;
+    imgs.value.push(img);
+    coords.value.push({
+      x: new Date(trans.limit_date).valueOf(),
+      y: trans.amount,
+    });
+  }
+  console.log(imgs.value);
+  console.log(coords.value);
+  renderChart();
+};
+
+onMounted(() => {
+  getLender();
+});
+
+const tab = ref("貸している相手");
+const tabs = ["貸している相手", "借りている相手"];
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
-
-const img1 = new Image(20, 20);
-img1.src = "src/assets/face01.png";
-const img2 = new Image(10, 10);
-img2.src = "src/assets/face02.png";
-const img3 = new Image(30, 30);
-img3.src = "src/assets/face03.png";
-const img4 = new Image(50, 50);
-img4.src = "src/assets/face04.png";
-const img5 = new Image(40, 40);
-img5.src = "src/assets/face05.png";
 
 const renderChart = () => {
   if (chartCanvas.value) {
@@ -28,14 +84,8 @@ const renderChart = () => {
       const chartData: ChartData<"scatter", ChartDataset<"scatter">["data"]> = {
         datasets: [
           {
-            data: [
-              { x: new Date("2023-04-01").valueOf(), y: 20 },
-              { x: new Date("2023-04-02").valueOf(), y: 10 },
-              { x: new Date("2023-04-08").valueOf(), y: 30 },
-              { x: new Date("2023-04-11").valueOf(), y: 50 },
-              { x: new Date("2023-04-25").valueOf(), y: 40 },
-            ],
-            pointStyle: [img1, img2, img3, img4, img5],
+            data: coords.value,
+            pointStyle: imgs.value,
             pointRadius: [20, 10, 30, 50, 40],
             backgroundColor: "rgba(255, 99, 132, 0.5)",
             borderColor: "rgba(255, 99, 132, 1)",
@@ -131,10 +181,6 @@ const renderChart = () => {
     }
   }
 };
-
-onMounted(() => {
-  renderChart();
-});
 </script>
 <template>
   <v-tabs v-model="tab" color="pink-accent-4" align-tabs="center">
@@ -149,7 +195,7 @@ onMounted(() => {
   </v-tabs>
   <div style="height: 15px" />
   <div class="total d-flex flex-row justify-end">
-    <div class="font-weight-bold text-h5">合計金額 : ￥46,000</div>
+    <div class="font-weight-bold text-h5">合計金額 : ￥{{ sum_amount }}</div>
   </div>
   <div style="height: 15px" />
   <div style="width: 90%">
