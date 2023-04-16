@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from supabase import create_client, Client
 
 import schemas
@@ -45,8 +46,13 @@ def signin(user: schemas.UserCreate):
     return {"user_id": res.user.id, "email": res.user.email}
 
 
+class Path(BaseModel):
+    path: str
+
+
 @router.post("/image", tags=['user'])
-def transform_image(path: str):
+def transform_image(p: Path):
+    path = p.path
     res = supabase.storage().from_("Images").download(path)
     p = path.replace("/", "")[6:-4]
     filepath = f"./tmp/{p}.png"
