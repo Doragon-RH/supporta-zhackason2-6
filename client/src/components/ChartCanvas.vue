@@ -28,13 +28,16 @@ const getLender = async () => {
       .eq("email", trans.borrower_id);
 
     const img_pattern = ref("");
-    if (trans.amount < 5000) {
+    const diff = Math.ceil(
+      (new Date(trans.limit_date) - new Date()) / (1000 + 60 * 60 * 24)
+    );
+    if (diff > 30000) {
       img_pattern.value = `pattern${userData.data[0].face_pattern}_lev1_path`;
-    } else if (trans.amount < 12500) {
+    } else if (diff > 5000) {
       img_pattern.value = `pattern${userData.data[0].face_pattern}_lev2_path`;
-    } else if (trans.amount < 25000) {
+    } else if (diff > -1000) {
       img_pattern.value = `pattern${userData.data[0].face_pattern}_lev3_path`;
-    } else if (trans.amount < 50000) {
+    } else if (diff > -3000) {
       img_pattern.value = `pattern${userData.data[0].face_pattern}_lev4_path`;
     } else {
       img_pattern.value = `pattern${userData.data[0].face_pattern}_lev5_path`;
@@ -189,7 +192,12 @@ const renderChart = () => {
 </script>
 <template>
   <v-tabs v-model="tab" color="pink-accent-4" align-tabs="center">
-    <v-tab v-for="t in tabs" :key="t" :value="t" style="padding-left: 50px; padding-right: 50px">
+    <v-tab
+      v-for="t in tabs"
+      :key="t"
+      :value="t"
+      style="padding-left: 50px; padding-right: 50px"
+    >
       <p class="font-weight-bold text-h6">{{ t }}</p>
     </v-tab>
   </v-tabs>
