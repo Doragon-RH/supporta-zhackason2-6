@@ -1,47 +1,136 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { createClient } from "@supabase/supabase-js";
+import { onMounted, ref } from "vue";
 
-const loaded = ref(false);
-const loading = ref(false);
+const url = import.meta.env.VITE_SUPABASE_URL;
+const key = import.meta.env.VITE_SUPABASE_KEY;
+const supabase = createClient(url, key);
 
-const onClick = () => {
-  loading.value = true;
+const email = ref("");
+const emailRules = [
+  (v: string) => !!v || "Emailを入力してください",
+  (v: string) => /\S+@\S+.\S+/.test(v) || "有効なEmailを入力してください",
+  (v: string) => 6 <= v.length || "6文字以上で入力してください",
+];
 
-  setTimeout(() => {
-    loading.value = false;
-    loaded.value = true;
-  }, 2000);
+const onClick = async () => {
+  console.log("ok", sessionStorage.getItem("email"), email.value);
+  await supabase.from("Friend").insert({
+    follow_email: sessionStorage.getItem("email"),
+    follower_email: email.value,
+  });
+  getFollow();
 };
 
 const tab = ref("申請中");
 const tabs = ["申請中", "未承認", "承認済み"];
 
-const applications = ref([
-  { user_name: "山田太郎", user_id: "yamada_taro" },
-  { user_name: "田中次郎", user_id: "tanaka_jiro" },
-]);
-const deleteApplication = (index: number) => {
-  applications.value.splice(index, 1);
+const applications = ref([]);
+const deleteApplication = async (id: number) => {
+  const data = await supabase
+    .from("Friend")
+    .update({ rejected: true })
+    .eq("id", id);
+  getFollow();
 };
 
-const unApproved = ref([
-  { user_name: "山田太郎", user_id: "yamada_taro" },
-  { user_name: "田中次郎", user_id: "tanaka_jiro" },
-]);
-const approve = (index: number) => {
-  unApproved.value.splice(index, 1);
+const unApproved = ref([]);
+const approve = async (id: number) => {
+  const data = await supabase
+    .from("Friend")
+    .update({ established: true })
+    .eq("id", id);
+  getFollower();
 };
-const reject = (index: number) => {
-  unApproved.value.splice(index, 1);
+const reject = async (id: number) => {
+  const data = await supabase
+    .from("Friend")
+    .update({ reject: true })
+    .eq("id", id);
+  getFollower();
 };
 
-const friends = ref([
-  { user_name: "山田太郎", user_id: "yamada_taro" },
-  { user_name: "田中次郎", user_id: "tanaka_jiro" },
-]);
-const deleteFriend = (index: number) => {
-  friends.value.splice(index, 1);
+const friends = ref([]);
+const deleteFriend = async (id: number) => {
+  const data = await supabase
+    .from("Friend")
+    .update({ reject: true })
+    .eq("id", id);
+  getFollow();
+  getFollower();
 };
+
+const getFollow = async () => {
+  applications.value = [];
+  friends.value = [];
+  const data = await supabase
+    .from("Friend")
+    .select("id, follower_email, established, rejected")
+    .eq("follow_email", sessionStorage.getItem("email"));
+  for (const d of data.data) {
+    if (!d.established && !d.rejected) {
+      const user = await supabase
+        .from("User")
+        .select("user_name")
+        .eq("email", d.follower_email);
+      const name = user.data[0].user_name;
+      applications.value.push({
+        id: d.id,
+        user_name: name,
+        email: d.follower_email,
+      });
+    } else if (d.established && !d.rejected) {
+      const user = await supabase
+        .from("User")
+        .select("user_name")
+        .eq("email", d.follower_email);
+      const name = user.data[0].user_name;
+      friends.value.push({
+        id: d.id,
+        user_name: name,
+        email: d.follower_email,
+      });
+    }
+  }
+};
+
+const getFollower = async () => {
+  unApproved.value = [];
+  const data = await supabase
+    .from("Friend")
+    .select("id, follow_email, established, rejected")
+    .eq("follower_email", sessionStorage.getItem("email"));
+  for (const d of data.data) {
+    if (!d.established && !d.rejected) {
+      const user = await supabase
+        .from("User")
+        .select("user_name")
+        .eq("email", d.follow_email);
+      const name = user.data[0].user_name;
+      unApproved.value.push({
+        id: d.id,
+        user_name: name,
+        email: d.follow_email,
+      });
+    } else if (d.established && !d.rejected) {
+      const user = await supabase
+        .from("User")
+        .select("user_name")
+        .eq("email", d.follow_email);
+      const name = user.data[0].user_name;
+      friends.value.push({
+        id: d.id,
+        user_name: name,
+        email: d.follow_email,
+      });
+    }
+  }
+};
+
+onMounted(() => {
+  getFollow();
+  getFollower();
+});
 </script>
 <template>
   <v-row align-content="center">
@@ -53,9 +142,10 @@ const deleteFriend = (index: number) => {
         <v-card-text>
           <div style="width: 80%">
             <v-text-field
-              :loading="loading"
+              v-model="email"
+              :rules="emailRules"
               variant="outlined"
-              label="ユーザIDを入力"
+              label="メールアドレスを入力"
               single-line
               hide-details
             >
@@ -84,11 +174,11 @@ const deleteFriend = (index: number) => {
                 <v-icon size="64" icon="mdi-account-circle" />
               </v-avatar>
               <p class="text-h6" style="padding-top: 15px; padding-left: 5px">
-                {{ user.user_name }} (@{{ user.user_id }})
+                {{ user.user_name }} ({{ user.email }})
               </p>
               <v-spacer></v-spacer>
               <v-btn
-                @click="deleteApplication(index)"
+                @click="deleteApplication(user.id)"
                 color="red-darken-2"
                 variant="outlined"
                 style="margin-top: 12px"
@@ -103,11 +193,11 @@ const deleteFriend = (index: number) => {
                 <v-icon size="64" icon="mdi-account-circle" />
               </v-avatar>
               <p class="text-h6" style="padding-top: 15px; padding-left: 5px">
-                {{ user.user_name }} (@{{ user.user_id }})
+                {{ user.user_name }} ({{ user.email }})
               </p>
               <v-spacer></v-spacer>
               <v-btn
-                @click="approve(index)"
+                @click="approve(user.id)"
                 color="green-darken-2"
                 variant="outlined"
                 style="margin-top: 12px; margin-right: 20px"
@@ -115,7 +205,7 @@ const deleteFriend = (index: number) => {
                 承認
               </v-btn>
               <v-btn
-                @click="reject(index)"
+                @click="reject(user.id)"
                 color="red-darken-2"
                 variant="outlined"
                 style="margin-top: 12px"
@@ -130,11 +220,11 @@ const deleteFriend = (index: number) => {
                 <v-icon size="64" icon="mdi-account-circle" />
               </v-avatar>
               <p class="text-h6" style="padding-top: 15px; padding-left: 5px">
-                {{ user.user_name }} (@{{ user.user_id }})
+                {{ user.user_name }} ({{ user.email }})
               </p>
               <v-spacer></v-spacer>
               <v-btn
-                @click="deleteFriend(index)"
+                @click="deleteFriend(user.id)"
                 color="red-darken-2"
                 variant="outlined"
                 style="margin-top: 12px"

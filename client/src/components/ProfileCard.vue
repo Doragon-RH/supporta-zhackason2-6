@@ -50,24 +50,24 @@ const updateProfile = async () => {
     const img = uploadImg.value.split(",")[1];
     const path = ref("");
     const error = ref();
-    if (exist_image) {
-      const data = await supabase.storage
-        .from("Images")
-        .update(`Origin/${user_id}.png`, decode(img));
-      path.value = data.data?.path;
-      error.value = data.error;
-    } else {
-      const data = await supabase.storage
+    console.log("exist");
+    try {
+      let data = await supabase.storage
         .from("Images")
         .upload(`Origin/${user_id}.png`, decode(img));
       path.value = data.data?.path;
-      error.value = data.error;
+    } catch (error) {
+      let data = await supabase.storage
+        .from("Images")
+        .update(`Origin/${user_id}.png`, decode(img));
+      path.value = data.data?.path;
     }
     console.log(path.value);
-
+    await supabase.from("Image").insert({ user_id: user_id });
     await supabase
       .from("Image")
-      .insert({ user_id: user_id, origin_path: path.value });
+      .update({ origin_path: path.value })
+      .eq("user_id", user_id);
     const i_data = await supabase.from("Image").select().eq("user_id", user_id);
     if (!i_data.error) {
       sessionStorage.setItem("image_id", i_data.data[0].id);
@@ -86,7 +86,18 @@ const updateProfile = async () => {
   sessionStorage.setItem("user_name", user_name.value);
   sessionStorage.setItem("face_pattern", selectImgType.value);
 
-  console.log(error);
+  const iurl = sessionStorage.getItem("image_url");
+  console.log("URL:", iurl);
+  await axios
+    .post("image", {
+      path: iurl,
+    })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
 </script>
 <template>
