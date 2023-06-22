@@ -39,18 +39,17 @@ plt.show()
 # face_list = cascade.detectMultiScale(img, scaleFactor=1.1,
 #                                              minNeighbors=2, minSize=(64, 64))
 
-eye_cascade_path = 'data/haarcascade_eye.xml'
+eye_cascade_path = 'data/haarcascade_eye.xml'   #学習済みのファイルを使用する
 
 eye_cascade = cv2.CascadeClassifier(eye_cascade_path)
 
 src = cv2.imread('assets/icon.png')
 src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
 
-eyes = eye_cascade.detectMultiScale(src_gray)
-
+eyes = eye_cascade.detectMultiScale(src_gray)   #目の範囲を検出
 
 for x, y, w, h in eyes:
-    cv2.rectangle(src, (x, y), (x + w, y + h), (255, 0, 0), 2)
+    cv2.rectangle(src, (x, y), (x + w, y + h), (255, 0, 0), 2)  #検出した座標をもとに範囲を線で囲む
 
 cv2.imwrite('./sample_after.png', src)
 
